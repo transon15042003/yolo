@@ -10,6 +10,23 @@ global.ada = MQTTClient.getClient();
 const DatabaseClient = require("./config/mongodb");
 const db = DatabaseClient.getClient();
 
+// Import models
+const airHumiModel = require("./models/airHumi");
+const lightModel = require("./models/light");
+const tempModel = require("./models/temperature");
+
+// Khởi tạo giá trị ban đầu từ MongoDB
+async function initializeModels() {
+    try {
+        await airHumiModel.fetchLatestData();
+        await lightModel.fetchLatestData();
+        await tempModel.fetchLatestData();
+        console.log("Initialized model values from MongoDB");
+    } catch (err) {
+        console.error("Error initializing models:", err);
+    }
+}
+
 // Import routes
 const requestApiRouter = require("./routes/index");
 const gatewayApiRouter = require("./routes/gateway");
@@ -34,12 +51,13 @@ requestApp.use("/api", requestApiRouter);
 // Error handler for request port
 requestApp.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).send("Server đang bị lỗi. Vui lòng thử lại sau!");
+    res.status(500).send("Server is having some problems!");
 });
 
 // Listen for requests on requestPort
-requestApp.listen(requestPort, () => {
+requestApp.listen(requestPort, async () => {
     console.log(`Request server running on port ${requestPort}...`);
+    await initializeModels();
 });
 
 /* --------------------------------------------------------------------- */
@@ -56,8 +74,9 @@ gatewayApp.use(bodyParser.json());
 
 gatewayApp.use("/gatewayAppApi", gatewayApiRouter);
 
-gatewayApp.listen(gatewayPort, () => {
+gatewayApp.listen(gatewayPort, async () => {
     console.log(`Gateway server running on port ${gatewayPort}...`);
+    await initializeModels();
 
     const feed_names_apis = [
         process.env.LED_SENSOR,

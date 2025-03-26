@@ -1,4 +1,5 @@
 const axios = require("axios");
+const db = require("../config/mongodb").getClient();
 
 let mode = "automatic"; //Automatic or Manual
 let temp = 0; // cần lấy giá trị mới nhất trong database
@@ -48,6 +49,22 @@ async function checkTemp(value) {
     return "Successful";
 }
 
+async function fetchLatestData() {
+    try {
+        const collection = db.collection("Temperature Condition");
+        const latestData = await collection.findOne(
+            {},
+            { sort: { timestamp: -1 } }
+        );
+        if (latestData) {
+            temp = latestData.value;
+            fan = latestData.fan || 0;
+        }
+    } catch (err) {
+        console.error("Error fetching latest temperature data:", err);
+    }
+}
+
 async function act_fan() {
     axios.put("http://localhost:8081/gatewayAppApi/fan", {
         fan: 1,
@@ -70,4 +87,5 @@ module.exports = {
     get_minmax_temp,
     set_minmax_temp,
     checkTemp,
+    fetchLatestData,
 };

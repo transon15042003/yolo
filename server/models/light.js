@@ -1,4 +1,5 @@
 const axios = require("axios");
+const db = require("../config/mongodb").getClient();
 
 let mode = "automatic";
 let LightEnergy = 50;
@@ -44,6 +45,22 @@ async function checkLightEnergy(value) {
     return "Successful";
 }
 
+async function fetchLatestData() {
+    try {
+        const collection = db.collection("Light Condition");
+        const latestData = await collection.findOne(
+            {},
+            { sort: { timestamp: -1 } }
+        );
+        if (latestData) {
+            LightEnergy = latestData.value;
+            light = latestData.light || 0;
+        }
+    } catch (err) {
+        console.error("Error fetching latest light data:", err);
+    }
+}
+
 async function act_light() {
     axios.put("http://localhost:8081/gatewayAppApi/light", {
         light: 1,
@@ -66,4 +83,5 @@ module.exports = {
     getMinMaxLightEnergy,
     setMinMaxLightEnergy,
     checkLightEnergy,
+    fetchLatestData,
 };
