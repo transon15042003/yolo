@@ -33,25 +33,45 @@ async function setMode(value) {
 }
 
 async function checkTemp(value) {
-    if (value < min_temp) {
-        if (fan == 1 && mode == "automatic") {
-            await inact_fan();
-        } else if (mode != "automatic") {
-            console.log("Warning: Temperature is low");
+    try {
+        if (value < min_temp) {
+            if (fan == 1 && mode == "automatic") {
+                await inact_fan();
+                console.log(
+                    "Automatic: Turning fan off due to low temperature"
+                );
+            } else if (mode == "manual") {
+                console.log(
+                    "Manual mode: Temperature is low - check fan settings"
+                );
+            }
+        } else if (value > max_temp) {
+            if (fan == 0 && mode == "automatic") {
+                await act_fan();
+                console.log(
+                    "Automatic: Turning fan on due to high temperature"
+                );
+            } else if (mode == "manual") {
+                console.log(
+                    "Manual mode: Temperature is high - check fan settings"
+                );
+            }
         }
-    } else if (value > max_temp) {
-        if (fan == 0 && mode == "automatic") {
-            await act_fan();
-        } else if (mode != "automatic") {
-            console.log("Warning: Temperature is high");
-        }
+
+        // Log current state
+        console.log(
+            `Current state - Temp: ${value}, Fan: ${fan}, Mode: ${mode}`
+        );
+        return "Successful";
+    } catch (err) {
+        console.error("Error in checkTemp:", err);
+        throw err;
     }
-    return "Successful";
 }
 
 async function fetchLatestData() {
     try {
-        const collection = db.collection("Temperature Condition");
+        const collection = db.collection("temperatures");
         const latestData = await collection.findOne(
             {},
             { sort: { timestamp: -1 } }

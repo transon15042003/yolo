@@ -5,7 +5,7 @@ let mode = "automatic";
 let LightEnergy = 50;
 let minLightEnergy = 40;
 let maxLightEnergy = 60;
-let light = 0; // get the newest value from the database
+let led = 0; // get the newest value from the database
 
 async function getLightEnergy() {
     return { LightEnergy: LightEnergy };
@@ -34,11 +34,11 @@ async function setMinMaxLightEnergy(min, max) {
 
 async function checkLightEnergy(value) {
     if (value < minLightEnergy) {
-        if (light == 1) {
+        if (led == 1) {
             await inact_light();
         }
     } else if (value > maxLightEnergy) {
-        if (light == 0) {
+        if (led == 0) {
             await act_light();
         }
     }
@@ -47,32 +47,32 @@ async function checkLightEnergy(value) {
 
 async function fetchLatestData() {
     try {
-        const collection = db.collection("Light Condition");
+        const collection = db.collection("lights");
         const latestData = await collection.findOne(
             {},
             { sort: { timestamp: -1 } }
         );
         if (latestData) {
             LightEnergy = latestData.value;
-            light = latestData.light || 0;
+            led = latestData.led || 0;
         }
     } catch (err) {
-        console.error("Error fetching latest light data:", err);
+        console.error("Error fetching latest led data:", err);
     }
 }
 
 async function act_light() {
-    axios.put("http://localhost:8081/gatewayAppApi/light", {
-        light: 1,
+    axios.put("http://localhost:8081/gatewayAppApi/led", {
+        led: 1,
     });
-    light = 1;
+    led = 1;
 }
 
 async function inact_light() {
-    axios.put("http://localhost:8081/gatewayAppApi/light", {
-        light: 0,
+    axios.put("http://localhost:8081/gatewayAppApi/led", {
+        led: 0,
     });
-    light = 0;
+    led = 0;
 }
 
 module.exports = {

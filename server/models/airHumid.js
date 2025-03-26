@@ -2,26 +2,26 @@ const axios = require("axios");
 const db = require("../config/mongodb").getClient();
 
 var mode = "automatic"; //Automatic or Manual
-var airHumi = 0; // cần lấy giá trị mới nhất trong database
-var min_humi = 45;
-var max_humi = 60;
+var airHumid = 0; // cần lấy giá trị mới nhất trong database
+var min_humid = 45;
+var max_humid = 60;
 var fan = 0; // cần lấy giá trị mới nhất trong database
 
-async function getHumi() {
-    return { humi: airHumi };
+async function getHumid() {
+    return { humid: airHumid };
 }
 
-async function setHumi(value) {
-    airHumi = value;
+async function setHumid(value) {
+    airHumid = value;
 }
 
-async function get_minmax_humi() {
-    return { minHumi: min_humi, maxHumi: max_humi };
+async function get_minmax_humid() {
+    return { minHumid: min_humid, maxHumid: max_humid };
 }
 
-async function set_minmax_humi(min, max) {
-    min_humi = min;
-    max_humi = max;
+async function set_minmax_humid(min, max) {
+    min_humid = min;
+    max_humid = max;
 }
 
 async function getMode() {
@@ -32,14 +32,14 @@ async function setMode(value) {
     mode = value;
 }
 
-async function checkHumi(value) {
-    if (value < min_humi) {
+async function checkHumid(value) {
+    if (value < min_humid) {
         if (fan == 1 && mode == "automatic") {
             //   await inact_fan();
         } else if (mode != "automatic") {
             console.log("Warning: Air Humidity is low");
         }
-    } else if (value > max_humi) {
+    } else if (value > max_humid) {
         if (fan == 0 && mode == "automatic") {
             //   await act_fan();
         } else if (mode != "automatic") {
@@ -51,13 +51,13 @@ async function checkHumi(value) {
 
 async function fetchLatestData() {
     try {
-        const collection = db.collection("Air Humidity");
+        const collection = db.collection("air humidities");
         const latestData = await collection.findOne(
             {},
             { sort: { timestamp: -1 } }
         );
         if (latestData) {
-            airHumi = latestData.value;
+            airHumid = latestData.value;
             fan = latestData.fan || 0; // Giả sử có trường 'fan' trong document
         }
     } catch (err) {
@@ -80,12 +80,12 @@ async function fetchLatestData() {
 // }
 
 module.exports = {
-    getHumi,
-    setHumi,
+    getHumid,
+    setHumid,
     getMode,
     setMode,
-    get_minmax_humi,
-    set_minmax_humi,
-    checkHumi,
+    get_minmax_humid,
+    set_minmax_humid,
+    checkHumid,
     fetchLatestData,
 };

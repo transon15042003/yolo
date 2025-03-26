@@ -1,15 +1,15 @@
 function convertName(name) {
     switch (name) {
         case "led":
-            return "Led";
+            return "leds";
         case "air-humid":
-            return "Air Humidity";
+            return "air humidities";
         case "light":
-            return "Light Condition";
+            return "lights";
         case "fan":
-            return "Fan";
+            return "fans";
         case "temp":
-            return "Temperature Condition";
+            return "temperatures";
         default:
             return name;
     }

@@ -1,17 +1,17 @@
 const express = require("express");
 const router = express.Router();
-const airHumiController = require("../controllers/airHumiController");
+const airHumidController = require("../controllers/airHumidController");
 
-router.get("/air-humi", airHumiController.getHumi);
+router.get("/air-humid", airHumidController.getHumid);
 
-router.put("/air-humi", airHumiController.setHumi);
+router.put("/air-humid", airHumidController.setHumid);
 
-router.get("/mode", airHumiController.getMode);
+router.get("/mode", airHumidController.getMode);
 
-router.put("/mode", airHumiController.setMode);
+router.put("/mode", airHumidController.setMode);
 
-router.get("/min-max-air-humi", airHumiController.getMinMaxHumi);
+router.get("/min-max-air-humid", airHumidController.getMinMaxHumid);
 
-router.put("/min-max-air-humi", airHumiController.setMinMaxHumi);
+router.put("/min-max-air-humid", airHumidController.setMinMaxHumid);
 
 module.exports = router;
