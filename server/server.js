@@ -60,8 +60,7 @@ gatewayApp.listen(gatewayPort, () => {
     console.log(`Gateway server running on port ${gatewayPort}...`);
 
     const feed_names_apis = [
-        process.env.MOI_SENSOR,
-        process.env.PUMP_SENSOR,
+        process.env.LED_SENSOR,
         process.env.FAN_SENSOR,
         process.env.LIGHT_SENSOR,
         process.env.HUMID_SENSOR,
@@ -91,12 +90,6 @@ gatewayApp.listen(gatewayPort, () => {
         });
 
         console.log(`Insert ${valueLoad} from ${feed_name_api} to database.`);
-
-        if (feed_name == "soil-moisture") {
-            axios.put("http://localhost:8080/api/watering/moisture", {
-                moisture: Number(valueLoad.toString()),
-            });
-        }
 
         if (feed_name == "temp") {
             axios.put("http://localhost:8080/api/temperature/temp", {

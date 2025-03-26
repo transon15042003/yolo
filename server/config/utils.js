@@ -1,9 +1,7 @@
 function convertName(name) {
     switch (name) {
-        case "soil-moisture":
-            return "Soil Moisture";
-        case "pumb":
-            return "Pump";
+        case "led":
+            return "Led";
         case "air-humid":
             return "Air Humidity";
         case "light":
