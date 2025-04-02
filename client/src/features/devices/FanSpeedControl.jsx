@@ -13,6 +13,8 @@ export default function FanSpeedControl({
     currentSpeed,
     onChangeSpeed,
     compactMode,
+    activeColor = "bg-teal-500",
+    inactiveColor = "bg-gray-700",
 }) {
     const getFanSpeedStyle = (power) => {
         if (power === 0) return { animationDuration: "0s" };
@@ -21,11 +23,11 @@ export default function FanSpeedControl({
     };
 
     return (
-        <div className={`${compactMode ? "mt-2" : "space-y-2"}`}>
+        <div className={`${compactMode ? "mt-2" : "space-y-3"}`}>
             {compactMode ? (
                 <div className="flex items-center gap-2">
                     <FaFan
-                        className={`text-blue-500 ${
+                        className={`text-teal-400 ${
                             currentSpeed > 0 ? "animate-spin" : ""
                         }`}
                         style={getFanSpeedStyle(
@@ -41,9 +43,9 @@ export default function FanSpeedControl({
                                 onClick={() => onChangeSpeed(setting.level)}
                                 className={`w-8 h-8 flex items-center justify-center rounded-full text-sm ${
                                     currentSpeed === setting.level
-                                        ? "bg-blue-500 text-white"
-                                        : "bg-gray-100 hover:bg-gray-200"
-                                }`}
+                                        ? `${activeColor} text-white shadow-md`
+                                        : `${inactiveColor} text-gray-300 hover:bg-gray-600`
+                                } transition-colors`}
                                 title={`Mức ${setting.level} (${setting.power}W)`}
                             >
                                 {setting.level}
@@ -55,7 +57,7 @@ export default function FanSpeedControl({
                 <>
                     <div className="flex items-center gap-3">
                         <FaFan
-                            className={`text-blue-500 ${
+                            className={`text-teal-400 ${
                                 currentSpeed > 0 ? "animate-spin" : ""
                             }`}
                             style={getFanSpeedStyle(
@@ -65,26 +67,26 @@ export default function FanSpeedControl({
                             )}
                             size={24}
                         />
-                        <div className="text-sm">
+                        <div className="text-sm text-gray-300">
                             Công suất:{" "}
-                            {
-                                speedSettings.find(
+                            <span className="font-medium">
+                                {speedSettings.find(
                                     (s) => s.level === currentSpeed
-                                )?.power
-                            }
-                            W
+                                )?.power || 0}
+                                W
+                            </span>
                         </div>
                     </div>
-                    <div className="grid grid-cols-5 gap-1">
+                    <div className="grid grid-cols-5 gap-2">
                         {speedSettings.map((setting) => (
                             <button
                                 key={setting.level}
                                 onClick={() => onChangeSpeed(setting.level)}
-                                className={`py-1 rounded text-sm ${
+                                className={`py-2 rounded-md text-sm ${
                                     currentSpeed === setting.level
-                                        ? "bg-blue-500 text-white"
-                                        : "bg-gray-100 hover:bg-gray-200"
-                                }`}
+                                        ? `${activeColor} text-white shadow-md`
+                                        : `${inactiveColor} text-gray-300 hover:bg-gray-600`
+                                } transition-colors`}
                             >
                                 {setting.label}
                             </button>

@@ -1,38 +1,27 @@
 import React from "react";
 
-export default function TimeRangeSelector({ timeRange, setTimeRange }) {
+export default function TimeRangeSelector({
+    timeRange,
+    setTimeRange,
+    className = "",
+}) {
     return (
-        <div className="flex space-x-2 mb-4">
-            <button
-                className={`px-4 py-2 rounded-md ${
-                    timeRange === "day"
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-200"
-                }`}
-                onClick={() => setTimeRange("day")}
-            >
-                Trong ngày
-            </button>
-            <button
-                className={`px-4 py-2 rounded-md ${
-                    timeRange === "month"
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-200"
-                }`}
-                onClick={() => setTimeRange("month")}
-            >
-                Trong tháng
-            </button>
-            <button
-                className={`px-4 py-2 rounded-md ${
-                    timeRange === "year"
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-200"
-                }`}
-                onClick={() => setTimeRange("year")}
-            >
-                Theo năm
-            </button>
+        <div className={`flex space-x-2 ${className}`}>
+            {["day", "month", "year"].map((range) => (
+                <button
+                    key={range}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                        timeRange === range
+                            ? "bg-blue-600 text-white shadow-md"
+                            : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                    }`}
+                    onClick={() => setTimeRange(range)}
+                >
+                    {range === "day" && "Trong ngày"}
+                    {range === "month" && "Trong tháng"}
+                    {range === "year" && "Theo năm"}
+                </button>
+            ))}
         </div>
     );
 }

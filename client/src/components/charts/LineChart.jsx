@@ -50,28 +50,40 @@ export default function SensorChart({
     };
 
     return (
-        <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-            <h3 className="text-lg font-semibold mb-4">{title}</h3>
+        <div>
+            <h3 className="text-lg font-semibold text-white mb-4">{title}</h3>
             <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={data}>
-                    <CartesianGrid strokeDasharray="3 3" />
+                <LineChart
+                    data={data}
+                    margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
+                >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                     <XAxis
                         dataKey="timestamp"
                         tickFormatter={formatTimestamp}
+                        tick={{ fill: "#9CA3AF" }}
+                        stroke="#4B5563"
                     />
-                    <YAxis />
+                    <YAxis tick={{ fill: "#9CA3AF" }} stroke="#4B5563" />
                     <Tooltip
+                        contentStyle={{
+                            backgroundColor: "#1F2937",
+                            borderColor: "#374151",
+                            borderRadius: "0.5rem",
+                        }}
                         labelFormatter={(value) =>
                             `Thời gian: ${formatTimestamp(value)}`
                         }
                         formatter={formatTooltip}
                     />
-                    <Legend />
+                    <Legend wrapperStyle={{ paddingTop: "20px" }} />
                     <Line
                         type="monotone"
                         dataKey={dataKey}
                         stroke={color}
-                        activeDot={{ r: 8 }}
+                        strokeWidth={2}
+                        activeDot={{ r: 6, strokeWidth: 0 }}
+                        dot={false}
                         name={label}
                     />
                 </LineChart>

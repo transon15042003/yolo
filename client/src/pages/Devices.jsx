@@ -18,7 +18,7 @@ export default function Devices() {
                 setDevices(status);
                 setError(null);
 
-                console.log(status);
+                // console.log(status);
             } catch (error) {
                 console.error("Error loading device status:", error);
                 setError("Không thể tải trạng thái thiết bị");
@@ -53,39 +53,54 @@ export default function Devices() {
         }
     };
 
-    if (loading) return <div className="p-6">Đang tải...</div>;
-    if (error) return <div className="p-6 text-red-500">{error}</div>;
+    if (loading)
+        return <div className="p-6 text-gray-300">Đang tải thiết bị...</div>;
+    if (error) return <div className="p-6 text-red-400">{error}</div>;
 
     return (
-        <div className="p-6">
-            <h1 className="text-3xl font-bold mb-6">Quản Lý Thiết Bị</h1>
+        <div className="p-6 bg-gray-900 min-h-screen text-gray-100">
+            <div className="max-w-7xl mx-auto">
+                <h1 className="text-3xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-300">
+                    Quản Lý Thiết Bị
+                </h1>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <DeviceCard
-                    title="Đèn"
-                    status={devices.led ? "Đang Bật" : "Đang Tắt"}
-                    isActive={devices.led}
-                    onToggle={toggleLight}
-                    icon="led"
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <DeviceCard
+                        title="Đèn LED"
+                        status={devices.led ? "Đang Bật" : "Đang Tắt"}
+                        isActive={devices.led}
+                        onToggle={toggleLight}
+                        icon="led"
+                        bgColor="bg-gray-800/50"
+                        borderColor="border-blue-500/30"
+                        activeColor="bg-blue-500"
+                        inactiveColor="bg-gray-700"
+                    />
 
-                <DeviceCard
-                    title="Quạt"
-                    status={
-                        devices.fan === 0
-                            ? "Đang Tắt"
-                            : `Đang Bật Ở Mức ${devices.fan}`
-                    }
-                    isActive={devices.fan > 0}
-                    icon="fan"
-                    customContent={
-                        <FanSpeedControl
-                            currentSpeed={devices.fan}
-                            onChangeSpeed={changeFanSpeed}
-                            compactMode
-                        />
-                    }
-                />
+                    <DeviceCard
+                        title="Quạt"
+                        status={
+                            devices.fan === 0
+                                ? "Đang Tắt"
+                                : `Đang Bật (Mức ${devices.fan})`
+                        }
+                        isActive={devices.fan > 0}
+                        icon="fan"
+                        bgColor="bg-gray-800/50"
+                        borderColor="border-teal-500/30"
+                        activeColor="bg-teal-500"
+                        inactiveColor="bg-gray-700"
+                        customContent={
+                            <FanSpeedControl
+                                currentSpeed={devices.fan}
+                                onChangeSpeed={changeFanSpeed}
+                                compactMode
+                                activeColor="bg-teal-500"
+                                inactiveColor="bg-gray-700"
+                            />
+                        }
+                    />
+                </div>
             </div>
         </div>
     );
