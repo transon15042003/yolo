@@ -80,8 +80,8 @@ function startPublishing() {
     // Gửi ngay lập tức
     publishData();
 
-    // Thiết lập interval mỗi 5 giây
-    setInterval(publishData, 5000);
+    // Thiết lập interval mỗi 10 giây
+    setInterval(publishData, 10000);
 }
 
 // Xử lý tắt chương trình

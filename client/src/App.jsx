@@ -11,9 +11,9 @@ import Devices from "./pages/Devices";
 function App() {
     return (
         <Router>
-            <div className="app-container">
+            <div className="app-container min-h-screen flex flex-col bg-gray-900">
                 <Header />
-                <main className="main-content">
+                <main className="main-content flex-1 pt-16">
                     <Routes>
                         <Route path="/" element={<HomePage />} />
                         <Route path="/about" element={<AboutPage />} />
