@@ -1,14 +1,27 @@
 const mongoose = require("mongoose");
 
-// Tạo schema chung
-const sensorSchema = new mongoose.Schema({
-    timestamp: String,
+// Schema cho nhiệt độ (có fan)
+const temperatureSchema = new mongoose.Schema({
+    timestamp: { type: Date, default: Date.now },
+    value: Number,
+    fanPower: { type: Number, enum: [0, 60, 70, 80, 90], default: 0 },
+});
+
+// Schema cho ánh sáng (có LED)
+const lightSchema = new mongoose.Schema({
+    timestamp: { type: Date, default: Date.now },
+    value: Number,
+    ledState: { type: Number, enum: [0, 1], default: 0 },
+});
+
+// Schema cho độ ẩm (không có thiết bị điều khiển)
+const humiditySchema = new mongoose.Schema({
+    timestamp: { type: Date, default: Date.now },
     value: Number,
 });
 
-// Tạo các models cụ thể
 module.exports = {
-    Temperature: mongoose.model("Temperature", sensorSchema),
-    Humidity: mongoose.model("Air Humidity", sensorSchema),
-    Light: mongoose.model("Light", sensorSchema),
+    Temperature: mongoose.model("Temperature", temperatureSchema),
+    Light: mongoose.model("Light", lightSchema),
+    Humidity: mongoose.model("Air Humidity", humiditySchema),
 };

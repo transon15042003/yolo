@@ -1,11 +1,9 @@
-const axios = require("axios");
 const db = require("../config/mongodb").getClient();
 
-var mode = "automatic"; //Automatic or Manual
-var airHumid = 0; // cần lấy giá trị mới nhất trong database
-var min_humid = 45;
-var max_humid = 60;
-var fan = 0; // cần lấy giá trị mới nhất trong database
+let mode = "automatic";
+let airHumid = 0;
+let min_humid = 45;
+let max_humid = 60;
 
 async function getHumid() {
     return { humid: airHumid };
@@ -33,51 +31,34 @@ async function setMode(value) {
 }
 
 async function checkHumid(value) {
-    if (value < min_humid) {
-        if (fan == 1 && mode == "automatic") {
-            //   await inact_fan();
-        } else if (mode != "automatic") {
+    try {
+        if (value < min_humid) {
             console.log("Warning: Air Humidity is low");
-        }
-    } else if (value > max_humid) {
-        if (fan == 0 && mode == "automatic") {
-            //   await act_fan();
-        } else if (mode != "automatic") {
+        } else if (value > max_humid) {
             console.log("Warning: Air Humidity is high");
         }
+        return "Successful";
+    } catch (err) {
+        console.error("Error in checkHumid:", err);
+        throw err;
     }
-    return "Successful";
 }
 
 async function fetchLatestData() {
     try {
-        const collection = db.collection("air humidities");
+        const collection = db.collection("air_humidities");
         const latestData = await collection.findOne(
             {},
             { sort: { timestamp: -1 } }
         );
         if (latestData) {
             airHumid = latestData.value;
-            fan = latestData.fan || 0; // Giả sử có trường 'fan' trong document
         }
     } catch (err) {
         console.error("Error fetching latest air humidity data:", err);
+        throw err;
     }
 }
-
-// async function act_fan() {
-//   axios.put("http://localhost:8081/gatewayAppApi/fan", {
-//     fan: 1,
-//   });
-//   fan = 1;
-// }
-
-// async function inact_fan() {
-//   axios.put("http://localhost:8081/gatewayAppApi/fan", {
-//     fan: 0,
-//   });
-//   fan = 0;
-// }
 
 module.exports = {
     getHumid,

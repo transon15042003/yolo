@@ -193,21 +193,48 @@ gatewayApp.listen(gatewayPort, async () => {
         console.log(`Insert ${valueLoad} from ${feed_name_api} to database.`);
 
         if (feed_name == "temp") {
-            axios.put("http://localhost:8080/api/temperature/temp", {
-                temp: Number(valueLoad.toString()),
-            });
+            axios.put(
+                `http://localhost:${process.env.REQUEST_PORT}/api/temperature/temp`,
+                {
+                    temp: Number(valueLoad.toString()),
+                }
+            );
         }
 
         if (feed_name == "air-humid") {
-            axios.put("http://localhost:8080/api/air-humidity/air-humid", {
-                humid: Number(valueLoad.toString()),
-            });
+            axios.put(
+                `http://localhost:${process.env.REQUEST_PORT}/api/air-humidity/air-humid`,
+                {
+                    humid: Number(valueLoad.toString()),
+                }
+            );
         }
 
         if (feed_name == "light") {
-            axios.put("http://localhost:8080/api/light/lightEnergy", {
-                LightEnergy: Number(valueLoad.toString()),
-            });
+            axios.put(
+                `http://localhost:${process.env.REQUEST_PORT}/api/light/lightEnergy`,
+                {
+                    LightEnergy: Number(valueLoad.toString()),
+                }
+            );
+        }
+
+        if (feed_name == "led") {
+            axios.put(
+                `http://localhost:${process.env.REQUEST_PORT}/api/light/ledState`,
+                {
+                    ledState: Number(valueLoad.toString()),
+                }
+            );
+        }
+
+        if (feed_name == "fan") {
+            axios.put(
+                `http://localhost:${process.env.REQUEST_PORT}/api/temperature/fan-power`,
+                {
+                    fanPower: Number(valueLoad.toString()),
+                }
+            );
         }
     });
 });

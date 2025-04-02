@@ -14,4 +14,8 @@ router.get("/min-max-temp", tempController.getMinMaxTemp);
 
 router.put("/min-max-temp", tempController.setMinMaxTemp);
 
+router.get("/fan-power", tempController.getFanPower);
+
+router.put("/fan-power", tempController.setFanPower);
+
 module.exports = router;

@@ -41,9 +41,30 @@ async function setMinMaxLightEnergy(req, res) {
     }
 }
 
+async function getLedState(req, res) {
+    try {
+        const value = await lightModel.getLedState();
+        res.json(value);
+    } catch (error) {
+        console.error("Error in getLedState:", error);
+    }
+}
+
+async function setLedState(req, res) {
+    try {
+        const ledState = req.body.ledState;
+        await lightModel.setLedState(ledState);
+        res.status(200).send("Successful");
+    } catch (error) {
+        console.error("Error in setLedState:", error);
+    }
+}
+
 module.exports = {
     getLightEnergy,
     setLightEnergy,
     getMinMaxLightEnergy,
     setMinMaxLightEnergy,
+    getLedState,
+    setLedState,
 };

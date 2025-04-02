@@ -11,4 +11,8 @@ router.get("/min-max-light", lightController.getMinMaxLightEnergy);
 
 router.put("/min-max-light", lightController.setMinMaxLightEnergy);
 
+router.get("/ledState", lightController.getLedState);
+
+router.put("/ledState", lightController.setLedState);
+
 module.exports = router;

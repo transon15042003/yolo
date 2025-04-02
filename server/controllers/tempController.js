@@ -35,6 +35,27 @@ async function setMode(req, res) {
     res.json({ status: "OK" });
 }
 
+async function getFanPower(req, res) {
+    try {
+        const tempData = await temp_model.getTemp();
+        const minMaxTempData = await temp_model.get_minmax_temp();
+        const fanData = await temp_model.getFanPower();
+        res.json({
+            temp: tempData.temp,
+            fanPower: fanData.fanPower,
+            minTemp: minMaxTempData.minTemp,
+            maxTemp: minMaxTempData.maxTemp,
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
+async function setFanPower(req, res) {
+    await temp_model.setFanPower(req.body.fanPower);
+    res.json({ status: "OK" });
+}
+
 module.exports = {
     getTemp,
     setTemp,
@@ -42,4 +63,6 @@ module.exports = {
     setMinMaxTemp,
     getMode,
     setMode,
+    getFanPower,
+    setFanPower,
 };
