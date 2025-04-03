@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { fetchDeviceStatus, controlDevice } from "../services/deviceService.js";
+import {
+    fetchDeviceStatus,
+    controlDevice,
+    setDeviceMode,
+} from "../services/deviceService.js";
 import DeviceCard from "../features/devices/DeviceCard.jsx";
 import FanSpeedControl from "../features/devices/FanSpeedControl.jsx";
 
@@ -7,6 +11,8 @@ export default function Devices() {
     const [devices, setDevices] = useState({
         led: 0,
         fan: 0,
+        ledMode: "manual",
+        fanMode: "manual",
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -17,11 +23,8 @@ export default function Devices() {
         const loadDeviceStatus = async () => {
             try {
                 const status = await fetchDeviceStatus();
-                console.log(status);
                 setDevices(status);
                 setError(null);
-
-                // console.log(status);
             } catch (error) {
                 console.error("Error loading device status:", error);
                 setError("Không thể tải trạng thái thiết bị");
@@ -56,6 +59,30 @@ export default function Devices() {
         }
     };
 
+    const toggleLedMode = async () => {
+        try {
+            const newMode =
+                devices.ledMode === "automatic" ? "manual" : "automatic";
+            await setDeviceMode("led", newMode);
+            setDevices((prev) => ({ ...prev, ledMode: newMode }));
+        } catch (error) {
+            console.error("Error toggling LED mode:", error);
+            setError("Lỗi khi thay đổi chế độ đèn");
+        }
+    };
+
+    const toggleFanMode = async () => {
+        try {
+            const newMode =
+                devices.fanMode === "automatic" ? "manual" : "automatic";
+            await setDeviceMode("fan", newMode);
+            setDevices((prev) => ({ ...prev, fanMode: newMode }));
+        } catch (error) {
+            console.error("Error toggling fan mode:", error);
+            setError("Lỗi khi thay đổi chế độ quạt");
+        }
+    };
+
     if (loading)
         return <div className="p-6 text-gray-300">Đang tải thiết bị...</div>;
     if (error) return <div className="p-6 text-red-400">{error}</div>;
@@ -73,6 +100,8 @@ export default function Devices() {
                         status={devices.led ? "Đang Bật" : "Đang Tắt"}
                         isActive={devices.led}
                         onToggle={toggleLight}
+                        onToggleMode={toggleLedMode} // Pass mode toggle function
+                        mode={devices.ledMode} // Pass current mode
                         icon="led"
                         bgColor="bg-gray-800/50"
                         borderColor="border-blue-500/30"
@@ -88,6 +117,8 @@ export default function Devices() {
                                 : `Đang Bật (Mức ${devices.fan})`
                         }
                         isActive={devices.fan > 0}
+                        onToggleMode={toggleFanMode} // Pass mode toggle function
+                        mode={devices.fanMode} // Pass current mode
                         icon="fan"
                         bgColor="bg-gray-800/50"
                         borderColor="border-teal-500/30"
@@ -100,6 +131,7 @@ export default function Devices() {
                                 compactMode
                                 activeColor="bg-teal-500"
                                 inactiveColor="bg-gray-700"
+                                disabled={devices.fanMode === "automatic"} // Disable speed control in auto mode
                             />
                         }
                     />

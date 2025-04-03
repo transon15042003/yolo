@@ -1,4 +1,3 @@
-// light.js
 const db = require("../config/mongodb").getClient();
 
 let mode = "automatic";
@@ -22,6 +21,7 @@ async function getMode() {
 
 async function setMode(value) {
     mode = value;
+    await checkLightEnergy(LightEnergy); // Trigger automation check whenever mode is updated
 }
 
 async function getMinMaxLightEnergy() {

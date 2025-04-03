@@ -15,6 +15,7 @@ export default function FanSpeedControl({
     compactMode,
     activeColor = "bg-teal-500",
     inactiveColor = "bg-gray-700",
+    disabled = false,
 }) {
     const getFanSpeedStyle = (power) => {
         if (power === 0) return { animationDuration: "0s" };
@@ -23,9 +24,14 @@ export default function FanSpeedControl({
     };
 
     return (
-        <div className={`${compactMode ? "mt-2" : "space-y-3"}`}>
+        <div
+            className={`${
+                compactMode ? "flex items-center gap-3" : "space-y-3"
+            }`}
+        >
             {compactMode ? (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
+                    {/* Fan Icon */}
                     <FaFan
                         className={`${
                             currentSpeed > 0
@@ -38,17 +44,23 @@ export default function FanSpeedControl({
                         )}
                         size={20}
                     />
+                    {/* Speed Buttons */}
                     <div className="flex gap-1">
                         {speedSettings.map((setting) => (
                             <button
                                 key={setting.level}
                                 onClick={() => onChangeSpeed(setting.level)}
-                                className={`w-8 h-8 flex items-center justify-center rounded-full text-sm ${
+                                className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-medium transition-colors ${
                                     currentSpeed === setting.level
                                         ? `${activeColor} text-white shadow-md`
                                         : `${inactiveColor} text-gray-300 hover:bg-gray-600`
-                                } transition-colors`}
+                                } ${
+                                    disabled
+                                        ? "opacity-50 cursor-not-allowed"
+                                        : ""
+                                }`}
                                 title={`Mức ${setting.level} (${setting.power}W)`}
+                                disabled={disabled}
                             >
                                 {setting.level}
                             </button>
@@ -86,11 +98,16 @@ export default function FanSpeedControl({
                             <button
                                 key={setting.level}
                                 onClick={() => onChangeSpeed(setting.level)}
-                                className={`py-2 rounded-md text-sm ${
+                                className={`py-2 rounded-md text-sm font-medium transition-colors ${
                                     currentSpeed === setting.level
                                         ? `${activeColor} text-white shadow-md`
                                         : `${inactiveColor} text-gray-300 hover:bg-gray-600`
-                                } transition-colors`}
+                                } ${
+                                    disabled
+                                        ? "opacity-50 cursor-not-allowed"
+                                        : ""
+                                }`}
+                                disabled={disabled}
                             >
                                 {setting.label}
                             </button>

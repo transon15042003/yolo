@@ -19,7 +19,7 @@ export default function TimeRangeSelector({
                 >
                     {range === "day" && "Trong ngày"}
                     {range === "month" && "Trong tháng"}
-                    {range === "year" && "Theo năm"}
+                    {range === "year" && "Trong năm"}
                 </button>
             ))}
         </div>

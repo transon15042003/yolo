@@ -36,6 +36,7 @@ async function getMode() {
 
 async function setMode(value) {
     mode = value;
+    await checkTemp(temp); // Check temperature when mode changes
 }
 
 async function checkTemp(value) {
@@ -56,10 +57,10 @@ async function checkTemp(value) {
                         }
                     }
                 );
-                await sendNotification(
-                    "Temperature Alert",
-                    `Temperature dropped below minimum threshold: ${value}°C`
-                );
+                // await sendNotification(
+                //     "Temperature Alert",
+                //     `Temperature dropped below minimum threshold: ${value}°C`
+                // );
             } else if (value > max_temp && fanPower === 0) {
                 await setFanPower(70);
                 console.log(
@@ -75,10 +76,10 @@ async function checkTemp(value) {
                         }
                     }
                 );
-                await sendNotification(
-                    "Temperature Alert",
-                    `Temperature exceeded maximum threshold: ${value}°C`
-                );
+                // await sendNotification(
+                //     "Temperature Alert",
+                //     `Temperature exceeded maximum threshold: ${value}°C`
+                // );
             }
         }
         console.log(

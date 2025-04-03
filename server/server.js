@@ -107,11 +107,6 @@ gatewayApp.listen(gatewayPort, async () => {
         const collection_name = convertName(feed_name);
         const timestamp = String(Date.now());
 
-        db.collection(collection_name).insertOne({
-            timestamp: timestamp,
-            value: Number(valueLoad.toString()),
-        });
-
         console.log(`Insert ${valueLoad} from ${feed_name_api} to database.`);
 
         if (feed_name == "temp") {
@@ -121,6 +116,11 @@ gatewayApp.listen(gatewayPort, async () => {
                     temp: Number(valueLoad.toString()),
                 }
             );
+            db.collection("temperatures").insertOne({
+                timestamp: timestamp,
+                value: Number(valueLoad.toString()),
+                fanPower: 0,
+            });
         }
 
         if (feed_name == "air-humid") {
@@ -130,6 +130,10 @@ gatewayApp.listen(gatewayPort, async () => {
                     humid: Number(valueLoad.toString()),
                 }
             );
+            db.collection("air humidities").insertOne({
+                timestamp: timestamp,
+                value: Number(valueLoad.toString()),
+            });
         }
 
         if (feed_name == "light") {
@@ -139,6 +143,11 @@ gatewayApp.listen(gatewayPort, async () => {
                     LightEnergy: Number(valueLoad.toString()),
                 }
             );
+            db.collection("lights").insertOne({
+                timestamp: timestamp,
+                value: Number(valueLoad.toString()),
+                ledState: 0,
+            });
         }
 
         if (feed_name == "led") {
@@ -148,6 +157,10 @@ gatewayApp.listen(gatewayPort, async () => {
                     ledState: Number(valueLoad.toString()),
                 }
             );
+            db.collection("leds").insertOne({
+                timestamp: timestamp,
+                value: Number(valueLoad.toString()),
+            });
         }
 
         if (feed_name == "fan") {
@@ -157,6 +170,10 @@ gatewayApp.listen(gatewayPort, async () => {
                     fanPower: Number(valueLoad.toString()),
                 }
             );
+            db.collection("fans").insertOne({
+                timestamp: timestamp,
+                value: Number(valueLoad.toString()),
+            });
         }
     });
 });

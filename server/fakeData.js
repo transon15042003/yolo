@@ -31,9 +31,9 @@ client.on("error", (err) => {
 function generateRandomData() {
     const now = new Date();
     return {
-        temperature: Math.floor(Math.random() * 15 + 20), // 20-35°C
+        temperature: Math.floor(Math.random() * 30 + 10), // 10-40°C
         humidity: Math.floor(Math.random() * 30 + 40), // 40-70%
-        light: Math.floor(Math.random() * 50 + 50), // 0-100 lux
+        light: Math.floor(Math.random() * 40 + 30), // 30-70 lux
         timestamp: now.toISOString(),
     };
 }

@@ -24,7 +24,6 @@ async function setTemp(req, res) {
             });
         }
         await temp_model.setTemp(temp);
-        await temp_model.checkTemp(temp);
         res.status(200).json({ success: true, data: { temp } });
     } catch (err) {
         console.error("Error in setTemp:", err.message, err.stack);

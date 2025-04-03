@@ -11,23 +11,29 @@ const speedSettings = [
 
 export const fetchDeviceStatus = async () => {
     try {
-        const [ledRes, fanRes] = await Promise.all([
+        const [ledRes, fanRes, ledModeRes, fanModeRes] = await Promise.all([
             fetch(`${API_URL}/api/light/ledState`),
             fetch(`${API_URL}/api/temperature/fan-power`),
+            fetch(`${API_URL}/api/light/mode`), // Fetch LED mode
+            fetch(`${API_URL}/api/temperature/mode`), // Fetch fan mode
         ]);
 
         const ledData = await ledRes.json();
         const fanData = await fanRes.json();
+        const ledModeData = await ledModeRes.json();
+        const fanModeData = await fanModeRes.json();
 
         return {
             led: ledData.ledState,
             fan:
                 speedSettings.find((s) => s.power === fanData.fanPower)
                     ?.level || 0,
+            ledMode: ledModeData.data.mode, // Add LED mode
+            fanMode: fanModeData.data.mode, // Add fan mode
         };
     } catch (error) {
         console.error("Error fetching device status:", error);
-        return { led: false, fan: 0 };
+        return { led: 0, fan: 0, ledMode: "manual", fanMode: "manual" };
     }
 };
 
@@ -54,6 +60,29 @@ export const controlDevice = async (device, command) => {
         return await response.json();
     } catch (error) {
         console.error("Error controlling device:", error);
+        throw error;
+    }
+};
+
+export const setDeviceMode = async (device, mode) => {
+    try {
+        let url;
+        if (device === "led") {
+            url = `${API_URL}/api/light/mode`;
+        } else if (device === "fan") {
+            url = `${API_URL}/api/temperature/mode`;
+        }
+
+        const response = await fetch(url, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ mode }),
+        });
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error(`Error setting ${device} mode to ${mode}:`, error);
         throw error;
     }
 };

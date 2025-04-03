@@ -17,12 +17,10 @@ async function setLightEnergy(req, res) {
     try {
         const { LightEnergy } = req.body;
         if (typeof LightEnergy !== "number" || isNaN(LightEnergy)) {
-            return res
-                .status(400)
-                .json({
-                    status: "error",
-                    message: "Light energy must be a valid number",
-                });
+            return res.status(400).json({
+                status: "error",
+                message: "Light energy must be a valid number",
+            });
         }
         await lightModel.setLightEnergy(LightEnergy);
         const checkLightEnergy = await lightModel.checkLightEnergy(LightEnergy);
@@ -65,24 +63,22 @@ async function setMinMaxLightEnergy(req, res) {
             isNaN(minLightEnergy) ||
             isNaN(maxLightEnergy)
         ) {
-            return res
-                .status(400)
-                .json({
-                    status: "error",
-                    message: "Min and max light energy must be valid numbers",
-                });
+            return res.status(400).json({
+                status: "error",
+                message: "Min and max light energy must be valid numbers",
+            });
         }
         if (minLightEnergy >= maxLightEnergy) {
-            return res
-                .status(400)
-                .json({
-                    status: "error",
-                    message:
-                        "Min light energy must be less than max light energy",
-                });
+            return res.status(400).json({
+                status: "error",
+                message: "Min light energy must be less than max light energy",
+            });
         }
         await lightModel.setMinMaxLightEnergy(minLightEnergy, maxLightEnergy);
-        res.status(200).send("Successful");
+        res.status(200).json({
+            status: "OK",
+            data: { minLightEnergy, maxLightEnergy },
+        });
     } catch (error) {
         console.error(
             "Error in setMinMaxLightEnergy:",
@@ -92,6 +88,43 @@ async function setMinMaxLightEnergy(req, res) {
         res.status(500).json({
             status: "error",
             message: "Failed to set min/max light energy",
+        });
+    }
+}
+
+async function getMode(req, res) {
+    try {
+        const value = await lightModel.getMode();
+        res.status(200).json({ success: true, data: value });
+    } catch (error) {
+        console.error("Error in getMode:", error.message, error.stack);
+        res.status(500).json({
+            successful: false,
+            status: "error",
+            message: "Failed to get mode",
+        });
+    }
+}
+
+async function setMode(req, res) {
+    try {
+        const { mode } = req.body;
+        if (mode !== "manual" && mode !== "automatic") {
+            return res.status(400).json({
+                status: "error",
+                message: "Mode must be 'manual' or 'automatic'",
+            });
+        }
+        await lightModel.setMode(mode);
+        res.status(200).json({
+            status: "OK",
+            data: { mode },
+        });
+    } catch (error) {
+        console.error("Error in setMode:", error.message, error.stack);
+        res.status(500).json({
+            status: "error",
+            message: "Failed to set mode",
         });
     }
 }
@@ -118,7 +151,10 @@ async function setLedState(req, res) {
                 .json({ status: "error", message: "LED state must be 0 or 1" });
         }
         await lightModel.setLedState(ledState);
-        res.status(200).send("Successful");
+        res.status(200).json({
+            status: "OK",
+            data: { ledState },
+        });
     } catch (error) {
         console.error("Error in setLedState:", error.message, error.stack);
         res.status(500).json({
@@ -133,6 +169,8 @@ module.exports = {
     setLightEnergy,
     getMinMaxLightEnergy,
     setMinMaxLightEnergy,
+    getMode,
+    setMode,
     getLedState,
     setLedState,
 };
