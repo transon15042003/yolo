@@ -13,8 +13,16 @@ router.use("/light", light);
 router.use("/history", sensorHistory);
 
 router.get("/test", (req, res) => {
-    // initial testing
-    res.send("OK");
+    const uptime = process.uptime();
+    const serverInfo = {
+        status: "OK",
+        message: "Server is running",
+        uptime: `${Math.floor(uptime / 60)} minutes, ${Math.floor(
+            uptime % 60
+        )} seconds`,
+        timestamp: new Date().toISOString(),
+    };
+    res.status(200).json(serverInfo);
 });
 
 module.exports = router;

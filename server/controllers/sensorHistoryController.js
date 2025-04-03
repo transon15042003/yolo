@@ -6,7 +6,7 @@ async function getSensorHistory(req, res, next) {
         let aggregation = [];
         let Model;
 
-        // Xác định Model dựa trên sensorType
+        // Map sensorType to Model (validation is handled in middleware)
         switch (req.params.sensorType) {
             case "temp":
                 Model = Temperature;
@@ -17,46 +17,40 @@ async function getSensorHistory(req, res, next) {
             case "light":
                 Model = Light;
                 break;
-            default:
-                return res.status(400).json({ error: "Invalid sensor type" });
         }
 
         // Lấy thời gian hiện tại
         const now = Date.now();
 
         if (range === "day") {
-            // Fetch dữ liệu với các giá trị timestamp cách nhau 1 giờ, từ cũ nhất đến mới nhất
-            // Lấy 20 giá trị gần nhất, mỗi giá trị cách nhau 1 giờ
             const oneHour = 60 * 60 * 1000; // 1 giờ tính bằng milliseconds
             const timestamps = Array.from(
                 { length: 20 },
                 (_, i) => now - i * oneHour
             );
 
-            // Tìm giá trị gần nhất cho mỗi timestamp
             const dataPromises = timestamps.map(async (targetTimestamp) => {
-                // Tìm bản ghi có timestamp gần targetTimestamp nhất
                 const nearestRecord = await Model.aggregate([
                     {
                         $addFields: {
-                            timestampNum: { $toLong: "$timestamp" }, // Chuyển timestamp từ string sang số
+                            timestampNum: { $toLong: "$timestamp" },
                         },
                     },
                     {
                         $match: {
                             timestampNum: {
-                                $gte: targetTimestamp - oneHour / 2, // Trong khoảng ±30 phút
+                                $gte: targetTimestamp - oneHour / 2,
                                 $lte: targetTimestamp + oneHour / 2,
                             },
                         },
                     },
                     {
                         $sort: {
-                            timestampNum: -1, // Sắp xếp theo timestamp giảm dần để lấy bản ghi mới nhất
+                            timestampNum: -1,
                         },
                     },
                     {
-                        $limit: 1, // Lấy bản ghi gần nhất
+                        $limit: 1,
                     },
                 ]);
 
@@ -71,28 +65,25 @@ async function getSensorHistory(req, res, next) {
             let data = (await Promise.all(dataPromises)).filter(
                 (d) => d !== null
             );
-            // Sắp xếp từ cũ nhất đến mới nhất
             data = data.sort(
                 (a, b) => parseInt(a.timestamp) - parseInt(b.timestamp)
             );
-            res.json(data);
+            res.status(200).json(data);
         } else if (range === "month") {
-            // Fetch dữ liệu với giá trị timestamp cách nhau 1 ngày, từ cũ nhất đến mới nhất
-            // Lấy trung bình giá trị trong ngày, giới hạn 20 ngày
-            const oneDay = 24 * 60 * 60 * 1000; // 1 ngày tính bằng milliseconds
+            const oneDay = 24 * 60 * 60 * 1000;
             const startOfToday = new Date(now);
-            startOfToday.setHours(0, 0, 0, 0); // Đặt về 0h ngày hiện tại
+            startOfToday.setHours(0, 0, 0, 0);
 
             aggregation = [
                 {
                     $addFields: {
-                        timestampNum: { $toLong: "$timestamp" }, // Chuyển timestamp từ string sang số
+                        timestampNum: { $toLong: "$timestamp" },
                     },
                 },
                 {
                     $match: {
                         timestampNum: {
-                            $gte: startOfToday.getTime() - 19 * oneDay, // Lấy 20 ngày (bao gồm hôm nay)
+                            $gte: startOfToday.getTime() - 19 * oneDay,
                             $lte: now,
                         },
                     },
@@ -105,12 +96,12 @@ async function getSensorHistory(req, res, next) {
                                 date: { $toDate: "$timestampNum" },
                             },
                         },
-                        value: { $avg: "$value" }, // Tính trung bình giá trị trong ngày
+                        value: { $avg: "$value" },
                         timestamp: { $first: "$timestamp" },
                     },
                 },
                 {
-                    $sort: { _id: 1 }, // Sắp xếp từ cũ nhất đến mới nhất
+                    $sort: { _id: 1 },
                 },
                 {
                     $limit: 20,
@@ -118,18 +109,16 @@ async function getSensorHistory(req, res, next) {
             ];
 
             const data = await Model.aggregate(aggregation);
-            res.json(data);
+            res.status(200).json(data);
         } else if (range === "year") {
-            // Fetch dữ liệu với giá trị timestamp cách nhau 1 tháng, từ cũ nhất đến mới nhất
-            // Lấy trung bình giá trị trong tháng, giới hạn 20 tháng
             const startOfMonth = new Date(now);
             startOfMonth.setDate(1);
-            startOfMonth.setHours(0, 0, 0, 0); // Đặt về ngày 1 của tháng hiện tại
+            startOfMonth.setHours(0, 0, 0, 0);
 
             aggregation = [
                 {
                     $addFields: {
-                        timestampNum: { $toLong: "$timestamp" }, // Chuyển timestamp từ string sang số
+                        timestampNum: { $toLong: "$timestamp" },
                     },
                 },
                 {
@@ -137,7 +126,7 @@ async function getSensorHistory(req, res, next) {
                         timestampNum: {
                             $gte:
                                 startOfMonth.getTime() -
-                                19 * 30 * 24 * 60 * 60 * 1000, // Lấy 20 tháng (ước lượng 30 ngày/tháng)
+                                19 * 30 * 24 * 60 * 60 * 1000,
                             $lte: now,
                         },
                     },
@@ -150,12 +139,12 @@ async function getSensorHistory(req, res, next) {
                                 date: { $toDate: "$timestampNum" },
                             },
                         },
-                        value: { $avg: "$value" }, // Tính trung bình giá trị trong tháng
+                        value: { $avg: "$value" },
                         timestamp: { $first: "$timestamp" },
                     },
                 },
                 {
-                    $sort: { _id: 1 }, // Sắp xếp từ cũ nhất đến mới nhất
+                    $sort: { _id: 1 },
                 },
                 {
                     $limit: 20,
@@ -163,14 +152,20 @@ async function getSensorHistory(req, res, next) {
             ];
 
             const data = await Model.aggregate(aggregation);
-            res.json(data);
+            res.status(200).json(data);
         } else {
-            // Mặc định: lấy 20 bản ghi gần nhất
+            console.log(
+                `Fetching default sensor history for ${req.params.sensorType} (20 most recent records)`
+            );
             const data = await Model.find().sort({ timestamp: -1 }).limit(20);
-            res.json(data);
+            res.status(200).json(data);
         }
     } catch (err) {
-        console.error("Error:", err);
+        console.error(
+            `Error in getSensorHistory (${req.params.sensorType}, range: ${req.query.range}):`,
+            err.message,
+            err.stack
+        );
         res.status(500).json({ error: err.message });
     }
 }

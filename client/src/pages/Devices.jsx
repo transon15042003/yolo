@@ -17,6 +17,7 @@ export default function Devices() {
         const loadDeviceStatus = async () => {
             try {
                 const status = await fetchDeviceStatus();
+                console.log(status);
                 setDevices(status);
                 setError(null);
 

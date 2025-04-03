@@ -1,10 +1,11 @@
+// light.js
 const db = require("../config/mongodb").getClient();
 
 let mode = "automatic";
 let LightEnergy = 50;
 let minLightEnergy = 40;
 let maxLightEnergy = 60;
-let ledState = 0; // 0: tắt, 1: bật
+let ledState = 0; // 0: off, 1: on
 
 async function getLightEnergy() {
     return { LightEnergy };
@@ -12,6 +13,7 @@ async function getLightEnergy() {
 
 async function setLightEnergy(value) {
     LightEnergy = value;
+    await checkLightEnergy(value); // Trigger automation check whenever light energy is updated
 }
 
 async function getMode() {
@@ -27,6 +29,11 @@ async function getMinMaxLightEnergy() {
 }
 
 async function setMinMaxLightEnergy(min, max) {
+    if (min >= max) {
+        throw new Error(
+            "Minimum light energy must be less than maximum light energy"
+        );
+    }
     minLightEnergy = min;
     maxLightEnergy = max;
 }
@@ -34,12 +41,43 @@ async function setMinMaxLightEnergy(min, max) {
 async function checkLightEnergy(value) {
     try {
         if (mode === "automatic") {
-            if (value < minLightEnergy && ledState === 1) {
-                await setLedState(0);
-            } else if (value > maxLightEnergy && ledState === 0) {
-                await setLedState(1);
+            if (value < minLightEnergy && ledState === 0) {
+                await setLedState(1); // Turn LED on
+                console.log(
+                    "Automatic: Turning LED on due to low light energy"
+                );
+                // Publish to MQTT to turn on the LED
+                global.ada.publish(
+                    process.env.LED_SENSOR,
+                    "1",
+                    { qos: 1, retain: false },
+                    (error) => {
+                        if (error) {
+                            console.error("Error publishing LED state:", error);
+                        }
+                    }
+                );
+            } else if (value > maxLightEnergy && ledState === 1) {
+                await setLedState(0); // Turn LED off
+                console.log(
+                    "Automatic: Turning LED off due to high light energy"
+                );
+                // Publish to MQTT to turn off the LED
+                global.ada.publish(
+                    process.env.LED_SENSOR,
+                    "0",
+                    { qos: 1, retain: false },
+                    (error) => {
+                        if (error) {
+                            console.error("Error publishing LED state:", error);
+                        }
+                    }
+                );
             }
         }
+        console.log(
+            `Current state - Light Energy: ${value}, LED State: ${ledState}, Mode: ${mode}`
+        );
         return "Successful";
     } catch (err) {
         console.error("Error in checkLightEnergy:", err);
@@ -79,6 +117,7 @@ async function getLedState() {
 async function setLedState(state) {
     try {
         ledState = state;
+        await updateLedStateInDB();
         return { success: true };
     } catch (err) {
         console.error("Error setting LED state:", err);
@@ -89,11 +128,32 @@ async function setLedState(state) {
 async function updateLedStateInDB() {
     try {
         const collection = db.collection("lights");
-        await collection.insertOne({
-            timestamp: new Date().toISOString(),
-            value: LightEnergy,
-            ledState,
-        });
+        // Find the most recent record and update its ledState
+        const result = await collection.findOneAndUpdate(
+            {}, // Match any document (we'll sort to get the latest)
+            {
+                $set: {
+                    ledState: ledState, // Update the ledState field
+                    timestamp: String(Date.now()), // Optionally update the timestamp to reflect the modification time
+                },
+            },
+            {
+                sort: { timestamp: -1 }, // Sort by timestamp in descending order to get the most recent record
+                returnDocument: "after", // Return the updated document
+            }
+        );
+
+        if (!result) {
+            // If no record exists, insert a new one as a fallback
+            await collection.insertOne({
+                timestamp: String(Date.now()),
+                value: LightEnergy,
+                ledState,
+            });
+            console.log("No existing light record found, inserted a new one.");
+        } else {
+            console.log("Updated ledState in the latest light record:", result);
+        }
     } catch (err) {
         console.error("Error updating LED state in DB:", err);
         throw err;
@@ -111,4 +171,5 @@ module.exports = {
     fetchLatestData,
     getLedState,
     setLedState,
+    updateLedStateInDB,
 };

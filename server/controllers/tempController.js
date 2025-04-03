@@ -1,59 +1,159 @@
 const temp_model = require("../models/temperature");
 
 async function getTemp(req, res) {
-    value = await temp_model.getTemp();
-    res.json(value);
+    try {
+        const value = await temp_model.getTemp();
+        res.status(200).json({ success: true, data: value });
+    } catch (err) {
+        console.error("Error in getTemp:", err.message, err.stack);
+        res.status(500).json({
+            success: false,
+            error: "Failed to get temperature",
+            details: err.message,
+        });
+    }
 }
 
 async function setTemp(req, res) {
     try {
-        await temp_model.setTemp(req.body.temp);
-        checktemp = await temp_model.checkTemp(req.body.temp);
-        res.json({ status: "OK" });
+        const { temp } = req.body;
+        if (typeof temp !== "number" || isNaN(temp)) {
+            return res.status(400).json({
+                success: false,
+                error: "Temperature must be a valid number",
+            });
+        }
+        await temp_model.setTemp(temp);
+        await temp_model.checkTemp(temp);
+        res.status(200).json({ success: true, data: { temp } });
     } catch (err) {
-        throw err;
+        console.error("Error in setTemp:", err.message, err.stack);
+        res.status(500).json({
+            success: false,
+            error: "Failed to set temperature",
+            details: err.message,
+        });
     }
 }
 
 async function getMinMaxTemp(req, res) {
-    value = await temp_model.get_minmax_temp();
-    res.json(value);
+    try {
+        const value = await temp_model.get_minmax_temp();
+        res.status(200).json({ success: true, data: value });
+    } catch (err) {
+        console.error("Error in getMinMaxTemp:", err.message, err.stack);
+        res.status(500).json({
+            success: false,
+            error: "Failed to get min/max temperature",
+            details: err.message,
+        });
+    }
 }
 
 async function setMinMaxTemp(req, res) {
-    await temp_model.set_minmax_temp(req.body.minTemp, req.body.maxTemp);
-    res.json({ status: "OK" });
+    try {
+        const { minTemp, maxTemp } = req.body;
+        if (
+            typeof minTemp !== "number" ||
+            typeof maxTemp !== "number" ||
+            isNaN(minTemp) ||
+            isNaN(maxTemp)
+        ) {
+            return res.status(400).json({
+                success: false,
+                error: "Min and max temperatures must be valid numbers",
+            });
+        }
+        if (minTemp >= maxTemp) {
+            return res.status(400).json({
+                success: false,
+                error: "Min temperature must be less than max temperature",
+            });
+        }
+        await temp_model.set_minmax_temp(minTemp, maxTemp);
+        res.status(200).json({ success: true, data: { minTemp, maxTemp } });
+    } catch (err) {
+        console.error("Error in setMinMaxTemp:", err.message, err.stack);
+        res.status(500).json({
+            success: false,
+            error: "Failed to set min/max temperature",
+            details: err.message,
+        });
+    }
 }
 
 async function getMode(req, res) {
-    value = await temp_model.getMode();
-    res.json(value);
+    try {
+        const value = await temp_model.getMode();
+        res.status(200).json({ success: true, data: value });
+    } catch (err) {
+        console.error("Error in getMode:", err.message, err.stack);
+        res.status(500).json({
+            success: false,
+            error: "Failed to get mode",
+            details: err.message,
+        });
+    }
 }
 
 async function setMode(req, res) {
-    await temp_model.setMode(req.body.mode);
-    res.json({ status: "OK" });
+    try {
+        const { mode } = req.body;
+        if (!["automatic", "manual"].includes(mode)) {
+            return res.status(400).json({
+                success: false,
+                error: "Mode must be 'automatic' or 'manual'",
+            });
+        }
+        await temp_model.setMode(mode);
+        res.status(200).json({ success: true, data: { mode } });
+    } catch (err) {
+        console.error("Error in setMode:", err.message, err.stack);
+        res.status(500).json({
+            success: false,
+            error: "Failed to set mode",
+            details: err.message,
+        });
+    }
 }
 
 async function getFanPower(req, res) {
     try {
-        const tempData = await temp_model.getTemp();
-        const minMaxTempData = await temp_model.get_minmax_temp();
         const fanData = await temp_model.getFanPower();
-        res.json({
-            temp: tempData.temp,
+
+        res.status(200).json({
             fanPower: fanData.fanPower,
-            minTemp: minMaxTempData.minTemp,
-            maxTemp: minMaxTempData.maxTemp,
         });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error("Error in getFanPower:", err.message, err.stack);
+        res.status(500).json({
+            success: false,
+            error: "Failed to get fan power",
+            details: err.message,
+        });
     }
 }
 
 async function setFanPower(req, res) {
-    await temp_model.setFanPower(req.body.fanPower);
-    res.json({ status: "OK" });
+    try {
+        const { fanPower } = req.body;
+        const validPowers = [0, 60, 70, 80, 90];
+        if (!validPowers.includes(fanPower)) {
+            return res.status(400).json({
+                success: false,
+                error: "Fan power must be one of 0, 60, 70, 80, or 90",
+            });
+        }
+        await temp_model.setFanPower(fanPower);
+        res.status(200).json({ success: true, data: { fanPower } });
+    } catch (err) {
+        console.error("Error in setFanPower:", err.message, err.stack);
+        res.status(500).json({
+            success: false,
+            error: "Failed to set fan power",
+            details: err.message,
+        });
+    }
 }
 
 module.exports = {
