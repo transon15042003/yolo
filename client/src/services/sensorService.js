@@ -5,7 +5,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 export const fetchSensorData = async (sensorType, timeRange = "day") => {
     try {
         const response = await axios.get(
-            `${API_URL}/api/${sensorType}/history`,
+            `${API_URL}/api/history/${sensorType}`,
             { params: { range: timeRange } }
         );
         return response.data

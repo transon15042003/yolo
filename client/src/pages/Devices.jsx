@@ -12,6 +12,8 @@ export default function Devices() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        document.title = "Manage devices - Smart Home IoT Platform";
+
         const loadDeviceStatus = async () => {
             try {
                 const status = await fetchDeviceStatus();

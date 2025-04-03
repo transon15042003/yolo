@@ -1,9 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { FiUsers, FiCode, FiServer, FiGlobe } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
 const AboutPage = () => {
+    useEffect(() => {
+        document.title = "About Us - Smart Home IoT Platform";
+    }, []);
+
     const navigate = useNavigate();
 
     const stats = [

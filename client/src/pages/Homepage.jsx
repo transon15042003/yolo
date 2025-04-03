@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
     FiMonitor,
     FiSettings,
@@ -11,6 +11,10 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
+    useEffect(() => {
+        document.title = "Smart Home IoT Platform";
+    }, []);
+
     const navigate = useNavigate();
 
     const features = [

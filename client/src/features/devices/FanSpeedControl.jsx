@@ -27,8 +27,10 @@ export default function FanSpeedControl({
             {compactMode ? (
                 <div className="flex items-center gap-2">
                     <FaFan
-                        className={`text-teal-400 ${
-                            currentSpeed > 0 ? "animate-spin" : ""
+                        className={`${
+                            currentSpeed > 0
+                                ? "text-teal-400 animate-spin"
+                                : "text-gray-500"
                         }`}
                         style={getFanSpeedStyle(
                             speedSettings.find((s) => s.level === currentSpeed)
@@ -57,8 +59,10 @@ export default function FanSpeedControl({
                 <>
                     <div className="flex items-center gap-3">
                         <FaFan
-                            className={`text-teal-400 ${
-                                currentSpeed > 0 ? "animate-spin" : ""
+                            className={`${
+                                currentSpeed > 0
+                                    ? "text-teal-400 animate-spin"
+                                    : "text-gray-500"
                             }`}
                             style={getFanSpeedStyle(
                                 speedSettings.find(

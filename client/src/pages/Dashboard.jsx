@@ -14,13 +14,27 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        document.title = "Dashboard - Smart Home IoT Platform";
         const loadData = async () => {
             try {
-                const [temp, humid, light] = await Promise.all([
+                let [temp, humid, light] = await Promise.all([
                     fetchSensorData("temp", timeRange),
                     fetchSensorData("air-humid", timeRange),
                     fetchSensorData("light", timeRange),
                 ]);
+
+                temp = temp.map((item) => ({
+                    ...item,
+                    value: item.value.toFixed(2),
+                }));
+                humid = humid.map((item) => ({
+                    ...item,
+                    value: item.value.toFixed(2),
+                }));
+                light = light.map((item) => ({
+                    ...item,
+                    value: item.value.toFixed(2),
+                }));
 
                 setSensorData({
                     temp,

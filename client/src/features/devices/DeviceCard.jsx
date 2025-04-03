@@ -2,10 +2,22 @@ import React from "react";
 import { FiPower } from "react-icons/fi";
 import { FaLightbulb, FaFan } from "react-icons/fa";
 
-const iconMap = {
-    led: <FaLightbulb className="text-yellow-400" size={20} />,
-    fan: <FaFan className="text-teal-400" size={20} />,
-};
+// Cập nhật iconMap để nhận thêm prop isActive và điều chỉnh màu dựa trên trạng thái
+const iconMap = (icon, isActive) =>
+    ({
+        led: (
+            <FaLightbulb
+                className={isActive ? "text-yellow-400" : "text-gray-500"}
+                size={20}
+            />
+        ),
+        fan: (
+            <FaFan
+                className={isActive ? "text-teal-400" : "text-gray-500"}
+                size={20}
+            />
+        ),
+    }[icon]);
 
 export default function DeviceCard({
     title,
@@ -38,7 +50,7 @@ export default function DeviceCard({
 
             <div className="flex items-center justify-between">
                 <div className="p-2 bg-gray-800 rounded-full">
-                    {iconMap[icon]}
+                    {iconMap(icon, isActive)}
                 </div>
 
                 {customContent || (
