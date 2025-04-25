@@ -36,7 +36,13 @@ async function getMode() {
 
 async function setMode(value) {
     mode = value;
-    await checkTemp(temp); // Check temperature when mode changes
+    try {
+        await updateFanModeInDB();
+        await checkTemp(temp); // Check temperature when mode changes
+    } catch (error) {
+        console.error("Error in setMode:", error.message, error.stack);
+        throw error;
+    }
 }
 
 async function checkTemp(value) {
@@ -109,6 +115,7 @@ async function fetchLatestData() {
         if (latestTempData && latestFanData) {
             temp = latestTempData.value;
             fanPower = latestFanData.value || 0;
+            mode = latestFanData.mode;
         }
     } catch (err) {
         console.error("Error fetching latest temperature data:", err);
@@ -167,6 +174,41 @@ async function updateFanStateInDB() {
         }
     } catch (err) {
         console.error("Error updating fan state in DB:", err);
+        throw err;
+    }
+}
+
+async function updateFanModeInDB() {
+    try {
+        const collection = db.collection("fans");
+        // Find the most recent record and update its mode
+        const result = await collection.findOneAndUpdate(
+            {}, // Match any document (we'll sort to get the latest)
+            {
+                $set: {
+                    mode: mode, // Update the mode field
+                    timestamp: String(Date.now()), // Optionally update the timestamp to reflect the modification time
+                },
+            },
+            {
+                sort: { timestamp: -1 }, // Sort by timestamp in descending order to get the most recent record
+                returnDocument: "after", // Return the updated document
+            }
+        );
+
+        if (!result) {
+            // If no record exists, insert a new one as a fallback
+            await collection.insertOne({
+                timestamp: String(Date.now()),
+                value: fanPower,
+                mode,
+            });
+            console.log("No existing FAN record found, inserted a new one.");
+        } else {
+            console.log("Updated mode in the latest FAN record:", result);
+        }
+    } catch (err) {
+        console.error("Error updating FAN mode in DB:", err);
         throw err;
     }
 }

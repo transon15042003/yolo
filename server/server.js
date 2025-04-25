@@ -21,6 +21,10 @@ const airHumidModel = require("./models/airHumid");
 const lightModel = require("./models/light");
 const tempModel = require("./models/temperature");
 
+// Import routes
+const requestApiRouter = require("./routes/index");
+const gatewayApiRouter = require("./routes/gateway");
+
 // Initialized model values from MongoDB
 async function initializeModels() {
     try {
@@ -32,10 +36,6 @@ async function initializeModels() {
         console.error("Error initializing models:", err);
     }
 }
-
-// Import routes
-const requestApiRouter = require("./routes/index");
-const gatewayApiRouter = require("./routes/gateway");
 
 // App setup for request port
 const requestApp = express();
@@ -110,7 +110,7 @@ gatewayApp.listen(gatewayPort, async () => {
         console.log(`Insert ${valueLoad} from ${feed_name_api} to database.`);
 
         if (feed_name == "temp") {
-            axios.put(
+            await axios.put(
                 `http://localhost:${process.env.REQUEST_PORT}/api/temperature/temp`,
                 {
                     temp: Number(valueLoad.toString()),
@@ -124,7 +124,7 @@ gatewayApp.listen(gatewayPort, async () => {
         }
 
         if (feed_name == "air-humid") {
-            axios.put(
+            await axios.put(
                 `http://localhost:${process.env.REQUEST_PORT}/api/air-humidity/air-humid`,
                 {
                     humid: Number(valueLoad.toString()),
@@ -137,7 +137,7 @@ gatewayApp.listen(gatewayPort, async () => {
         }
 
         if (feed_name == "light") {
-            axios.put(
+            await axios.put(
                 `http://localhost:${process.env.REQUEST_PORT}/api/light/lightEnergy`,
                 {
                     LightEnergy: Number(valueLoad.toString()),
@@ -151,28 +151,34 @@ gatewayApp.listen(gatewayPort, async () => {
         }
 
         if (feed_name == "led") {
-            axios.put(
+            await axios.put(
                 `http://localhost:${process.env.REQUEST_PORT}/api/light/ledState`,
                 {
                     ledState: Number(valueLoad.toString()),
                 }
             );
+            const { ledCapacity } = await lightModel.getLedCapacity();
+            const { mode } = await lightModel.getMode();
             db.collection("leds").insertOne({
                 timestamp: timestamp,
                 value: Number(valueLoad.toString()),
+                ledCapacity: ledCapacity,
+                mode: mode,
             });
         }
 
         if (feed_name == "fan") {
-            axios.put(
+            await axios.put(
                 `http://localhost:${process.env.REQUEST_PORT}/api/temperature/fan-power`,
                 {
                     fanPower: Number(valueLoad.toString()),
                 }
             );
+            const { mode } = await tempModel.getMode();
             db.collection("fans").insertOne({
                 timestamp: timestamp,
                 value: Number(valueLoad.toString()),
+                mode: mode,
             });
         }
     });

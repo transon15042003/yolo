@@ -164,6 +164,42 @@ async function setLedState(req, res) {
     }
 }
 
+async function getLedCapacity(req, res) {
+    try {
+        const value = await lightModel.getLedCapacity();
+        res.status(200).json(value);
+    } catch (error) {
+        console.error("Error in getLedCapacity:", error.message, error.stack);
+        res.status(500).json({
+            status: "error",
+            message: "Failed to get LED capacity",
+        });
+    }
+}
+
+// async function setLedCapacity(req, res) {
+//     try {
+//         const { ledCapacity } = req.body;
+//         if (typeof ledCapacity !== "number" || isNaN(ledCapacity)) {
+//             return res.status(400).json({
+//                 status: "error",
+//                 message: "LED capacity must be a valid number",
+//             });
+//         }
+//         await lightModel.setLedCapacity(ledCapacity);
+//         res.status(200).json({
+//             status: "OK",
+//             data: { ledCapacity },
+//         });
+//     } catch (error) {
+//         console.error("Error in setLedCapacity:", error.message, error.stack);
+//         res.status(500).json({
+//             status: "error",
+//             message: "Failed to set LED capacity",
+//         });
+//     }
+// }
+
 module.exports = {
     getLightEnergy,
     setLightEnergy,
@@ -173,4 +209,5 @@ module.exports = {
     setMode,
     getLedState,
     setLedState,
+    getLedCapacity,
 };

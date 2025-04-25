@@ -5,6 +5,7 @@ let LightEnergy = 50;
 let minLightEnergy = 40;
 let maxLightEnergy = 60;
 let ledState = 0; // 0: off, 1: on
+let ledCapacity = 30; // LED capacity in watts
 
 async function getLightEnergy() {
     return { LightEnergy };
@@ -21,7 +22,16 @@ async function getMode() {
 
 async function setMode(value) {
     mode = value;
-    await checkLightEnergy(LightEnergy); // Trigger automation check whenever mode is updated
+    try {
+        await updateLedModeInDB();
+        await checkLightEnergy(LightEnergy); // Trigger automation check whenever mode is updated
+    } catch (error) {
+        console.error("Error in setMode:", error.message, error.stack);
+        res.status(500).json({
+            status: "error",
+            message: "Failed to set mode",
+        });
+    }
 }
 
 async function getMinMaxLightEnergy() {
@@ -36,6 +46,23 @@ async function setMinMaxLightEnergy(min, max) {
     }
     minLightEnergy = min;
     maxLightEnergy = max;
+}
+
+async function getLedCapacity() {
+    return { ledCapacity };
+}
+
+async function setLedCapacity(value) {
+    ledCapacity = value;
+    try {
+        await updateLedCapacityInDB(); // Update LED capacity in the database
+    } catch (error) {
+        console.error("Error in setLedCapacity:", error.message, error.stack);
+        res.status(500).json({
+            status: "error",
+            message: "Failed to set LED capacity",
+        });
+    }
 }
 
 async function checkLightEnergy(value) {
@@ -102,6 +129,7 @@ async function fetchLatestData() {
         if (latestLightData && latestLedData) {
             LightEnergy = latestLightData.value;
             ledState = latestLedData.value;
+            mode = latestLedData.mode;
         }
         return "Successful";
     } catch (err) {
@@ -127,13 +155,13 @@ async function setLedState(state) {
 
 async function updateLedStateInDB() {
     try {
-        const collection = db.collection("lights");
+        const collection = db.collection("leds");
         // Find the most recent record and update its ledState
         const result = await collection.findOneAndUpdate(
             {}, // Match any document (we'll sort to get the latest)
             {
                 $set: {
-                    ledState: ledState, // Update the ledState field
+                    value: ledState, // Update the ledState field
                     timestamp: String(Date.now()), // Optionally update the timestamp to reflect the modification time
                 },
             },
@@ -147,15 +175,89 @@ async function updateLedStateInDB() {
             // If no record exists, insert a new one as a fallback
             await collection.insertOne({
                 timestamp: String(Date.now()),
-                value: LightEnergy,
-                ledState,
+                value: ledState,
             });
-            console.log("No existing light record found, inserted a new one.");
+            console.log("No existing LED record found, inserted a new one.");
         } else {
-            console.log("Updated ledState in the latest light record:", result);
+            console.log("Updated ledState in the latest LED record:", result);
         }
     } catch (err) {
         console.error("Error updating LED state in DB:", err);
+        throw err;
+    }
+}
+
+async function updateLedModeInDB() {
+    try {
+        const collection = db.collection("leds");
+        // Find the most recent record and update its mode
+        const result = await collection.findOneAndUpdate(
+            {}, // Match any document (we'll sort to get the latest)
+            {
+                $set: {
+                    mode: mode, // Update the mode field
+                    timestamp: String(Date.now()), // Optionally update the timestamp to reflect the modification time
+                },
+            },
+            {
+                sort: { timestamp: -1 }, // Sort by timestamp in descending order to get the most recent record
+                returnDocument: "after", // Return the updated document
+            }
+        );
+
+        if (!result) {
+            // If no record exists, insert a new one as a fallback
+            await collection.insertOne({
+                timestamp: String(Date.now()),
+                value: ledState,
+                ledCapacity: ledCapacity,
+                mode: mode,
+            });
+            console.log("No existing LED record found, inserted a new one.");
+        } else {
+            console.log("Updated mode in the latest LED record:", result);
+        }
+    } catch (err) {
+        console.error("Error updating LED mode in DB:", err);
+        throw err;
+    }
+}
+
+async function updateLedCapacityInDB() {
+    try {
+        const collection = db.collection("leds");
+        // Find the most recent record and update its ledCapacity
+        const result = await collection.findOneAndUpdate(
+            {}, // Match any document (we'll sort to get the latest)
+            {
+                $set: {
+                    ledCapacity: ledCapacity, // Update the ledCapacity field
+                    timestamp: String(Date.now()), // Optionally update the timestamp to reflect the modification time
+                },
+            },
+            {
+                sort: { timestamp: -1 }, // Sort by timestamp in descending order to get the most recent record
+                returnDocument: "after", // Return the updated document
+            }
+        );
+
+        if (!result) {
+            // If no record exists, insert a new one as a fallback
+            await collection.insertOne({
+                timestamp: String(Date.now()),
+                value: ledState,
+                ledCapacity: ledCapacity,
+                mode: mode,
+            });
+            console.log("No existing LED record found, inserted a new one.");
+        } else {
+            console.log(
+                "Updated ledCapacity in the latest LED record:",
+                result
+            );
+        }
+    } catch (err) {
+        console.error("Error updating LED capacity in DB:", err);
         throw err;
     }
 }
@@ -171,5 +273,7 @@ module.exports = {
     fetchLatestData,
     getLedState,
     setLedState,
+    getLedCapacity,
+    // setLedCapacity,
     updateLedStateInDB,
 };
