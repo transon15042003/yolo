@@ -20,8 +20,22 @@ const humiditySchema = new mongoose.Schema({
     value: Number,
 });
 
+// Schema cho tiêu thụ năng lượng của LED
+const ledEnergySchema = new mongoose.Schema({
+    timestamp: { type: Date, required: true }, // Thời điểm bắt đầu của giờ (e.g., 0h, 1h, ...)
+    energy: { type: Number, default: 0 }, // Năng lượng tiêu thụ trong giờ đó (Joules)
+});
+
+// Schema cho tiêu thụ năng lượng của quạt
+const fanEnergySchema = new mongoose.Schema({
+    timestamp: { type: Date, required: true }, // Thời điểm bắt đầu của giờ
+    energy: { type: Number, default: 0 }, // Năng lượng tiêu thụ trong giờ đó (Joules)
+});
+
 module.exports = {
     Temperature: mongoose.model("Temperature", temperatureSchema),
     Light: mongoose.model("Light", lightSchema),
     Humidity: mongoose.model("Air Humidity", humiditySchema),
+    LedEnergy: mongoose.model("Led Energy", ledEnergySchema),
+    FanEnergy: mongoose.model("Fan Energy", fanEnergySchema),
 };

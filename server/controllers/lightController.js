@@ -1,4 +1,5 @@
 const lightModel = require("../models/light");
+const { LedEnergy } = require("../models/sensorModels");
 
 async function getLightEnergy(req, res) {
     try {
@@ -200,6 +201,27 @@ async function getLedCapacity(req, res) {
 //     }
 // }
 
+const getLedEnergy = async (req, res) => {
+    try {
+        const { startDate, endDate } = req.query;
+
+        let query = {};
+        if (startDate && endDate) {
+            query = {
+                timestamp: {
+                    $gte: new Date(startDate),
+                    $lte: new Date(endDate),
+                },
+            };
+        }
+
+        const energyData = await LedEnergy.find(query).sort({ timestamp: 1 });
+        res.status(200).json(energyData);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
 module.exports = {
     getLightEnergy,
     setLightEnergy,
@@ -210,4 +232,5 @@ module.exports = {
     getLedState,
     setLedState,
     getLedCapacity,
+    getLedEnergy,
 };

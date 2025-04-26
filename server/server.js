@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const axios = require("axios");
+const schedule = require("node-schedule");
 
 const { convertName } = require("./config/utils");
 const {
@@ -37,6 +38,20 @@ async function initializeModels() {
     }
 }
 
+// Schedule hourly updates for energy consumption
+function scheduleHourlyUpdates() {
+    // Cập nhật mỗi giờ (vào phút 0)
+    schedule.scheduleJob("0 * * * *", async () => {
+        try {
+            await lightModel.handleHourlyUpdate();
+            await tempModel.handleHourlyUpdate();
+            console.log("Hourly energy update completed");
+        } catch (err) {
+            console.error("Error in hourly energy update:", err);
+        }
+    });
+}
+
 // App setup for request port
 const requestApp = express();
 const requestPort = process.env.REQUEST_PORT || 8080;
@@ -63,7 +78,17 @@ requestApp.use((err, req, res, next) => {
 // Listen for requests on requestPort
 requestApp.listen(requestPort, async () => {
     console.log(`Request server running on port ${requestPort}...`);
-    await initializeModels();
+
+    await initializeModels(); // Initialize models from MongoDB
+
+    scheduleHourlyUpdates(); // Schedule the hourly updates
+
+    // Schedule fan to turn on at 8 AM and off at 8 PM
+    scheduleFanOnAt("0 8 * * *"); // 8:00 AM every day
+    scheduleFanOffAt("0 20 * * *"); // 8:00 PM every day
+    // Schedule LED to turn on at 6 PM and off at 6 AM
+    scheduleLedOnAt("0 18 * * *"); // 6:00 PM every day
+    scheduleLedOffAt("0 6 * * *"); // 6:00 AM every day
 });
 
 /* --------------------------------------------------------------------- */
@@ -183,11 +208,3 @@ gatewayApp.listen(gatewayPort, async () => {
         }
     });
 });
-
-// Schedule fan to turn on at 8 AM and off at 8 PM
-scheduleFanOnAt("0 8 * * *"); // 8:00 AM every day
-scheduleFanOffAt("0 20 * * *"); // 8:00 PM every day
-
-// Schedule LED to turn on at 6 PM and off at 6 AM
-scheduleLedOnAt("0 18 * * *"); // 6:00 PM every day
-scheduleLedOffAt("0 6 * * *"); // 6:00 AM every day

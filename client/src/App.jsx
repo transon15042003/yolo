@@ -7,6 +7,8 @@ import AboutPage from "./pages/AboutPage";
 import FeaturesPage from "./pages/FeaturesPage";
 import Dashboard from "./pages/Dashboard";
 import Devices from "./pages/Devices";
+import PowerConsumption from "./pages/PowerConsumption";
+import Settings from "./pages/Settings";
 
 function App() {
     return (
@@ -20,6 +22,11 @@ function App() {
                         <Route path="/features" element={<FeaturesPage />} />
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/devices" element={<Devices />} />
+                        <Route
+                            path="/power-consumption"
+                            element={<PowerConsumption />}
+                        />
+                        <Route path="/settings" element={<Settings />} />
                     </Routes>
                 </main>
                 <Footer />

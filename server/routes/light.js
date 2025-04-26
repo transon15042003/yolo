@@ -17,4 +17,6 @@ router.put("/ledState", lightController.setLedState);
 
 router.get("/ledCapacity", lightController.getLedCapacity);
 
+router.get("/ledEnergy", lightController.getLedEnergy);
+
 module.exports = router;

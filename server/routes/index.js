@@ -4,6 +4,8 @@ const temperature = require("./temperature");
 const airHumidity = require("./airHumidity");
 const light = require("./light");
 const sensorHistory = require("./sensorHistory");
+const energyHistory = require("./energyHistory");
+const settingsRoutes = require("./settingsRoutes");
 
 const router = express.Router();
 
@@ -11,6 +13,8 @@ router.use("/temperature", temperature);
 router.use("/air-humidity", airHumidity);
 router.use("/light", light);
 router.use("/history", sensorHistory);
+router.use("/energy", energyHistory);
+router.use("/settings", settingsRoutes);
 
 router.get("/test", (req, res) => {
     const uptime = process.uptime();

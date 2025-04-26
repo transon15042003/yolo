@@ -1,4 +1,5 @@
 const temp_model = require("../models/temperature");
+const { FanEnergy } = require("../models/sensorModels");
 
 async function getTemp(req, res) {
     try {
@@ -155,6 +156,27 @@ async function setFanPower(req, res) {
     }
 }
 
+async function getFanEnergy(req, res) {
+    try {
+        const { startDate, endDate } = req.query;
+
+        let query = {};
+        if (startDate && endDate) {
+            query = {
+                timestamp: {
+                    $gte: new Date(startDate),
+                    $lte: new Date(endDate),
+                },
+            };
+        }
+
+        const energyData = await FanEnergy.find(query).sort({ timestamp: 1 });
+        res.status(200).json(energyData);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
 module.exports = {
     getTemp,
     setTemp,
@@ -164,4 +186,5 @@ module.exports = {
     setMode,
     getFanPower,
     setFanPower,
+    getFanEnergy,
 };
