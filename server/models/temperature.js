@@ -341,12 +341,12 @@ async function handleMidnightReset() {
 
 async function updateFanStateInDB() {
     try {
-        const collection = db.collection("temperatures");
+        const collection = db.collection("fans");
         const result = await collection.findOneAndUpdate(
             {},
             {
                 $set: {
-                    fanPower: fanPower,
+                    value: fanPower,
                     timestamp: String(Date.now()),
                 },
             },
@@ -359,17 +359,12 @@ async function updateFanStateInDB() {
         if (!result) {
             await collection.insertOne({
                 timestamp: String(Date.now()),
-                value: temp,
-                fanPower,
+                value: fanPower,
+                mode,
             });
-            console.log(
-                "No existing temperature record found, inserted a new one."
-            );
+            console.log("No existing fan record found, inserted a new one.");
         } else {
-            console.log(
-                "Updated fanPower in the latest temperature record:",
-                result
-            );
+            console.log("Updated value in the latest fan record:", result);
         }
     } catch (err) {
         console.error("Error updating fan state in DB:", err);
