@@ -144,7 +144,6 @@ gatewayApp.listen(gatewayPort, async () => {
             db.collection("temperatures").insertOne({
                 timestamp: timestamp,
                 value: Number(valueLoad.toString()),
-                fanPower: 0,
             });
         }
 
@@ -171,7 +170,6 @@ gatewayApp.listen(gatewayPort, async () => {
             db.collection("lights").insertOne({
                 timestamp: timestamp,
                 value: Number(valueLoad.toString()),
-                ledState: 0,
             });
         }
 
