@@ -3,6 +3,11 @@ import { fetchSensorData } from "../services/sensorService";
 import SensorCard from "../features/dashboard/SensorCard";
 import TimeRangeSelector from "../components/ui/TimeRangeSelector";
 import SensorChartContainer from "../features/dashboard/SensorChartContainer";
+import {
+    getHumidityAlert,
+    getTemperatureAlert,
+    getLightAlert,
+} from "../utils/getAlert";
 
 export default function Dashboard() {
     const [sensorData, setSensorData] = useState({
@@ -83,6 +88,9 @@ export default function Dashboard() {
                         color="#ef4444" // Màu đỏ
                         bgColor="bg-gray-800/50"
                         borderColor="border-red-500/30" // Viền đỏ nhạt
+                        alert={getTemperatureAlert(
+                            sensorData.temp[sensorData.temp.length - 1]?.value
+                        )}
                     />
                     <SensorCard
                         title="Độ ẩm"
@@ -90,9 +98,12 @@ export default function Dashboard() {
                             sensorData.humid[sensorData.humid.length - 1]?.value
                         }
                         unit="%"
-                        color="#3b82f6" // Màu xanh dương
+                        color="#3b82f6"
                         bgColor="bg-gray-800/50"
-                        borderColor="border-blue-500/30" // Viền xanh nhạt
+                        borderColor="border-blue-500/30"
+                        alert={getHumidityAlert(
+                            sensorData.humid[sensorData.humid.length - 1]?.value
+                        )}
                     />
                     <SensorCard
                         title="Ánh sáng"
@@ -103,6 +114,9 @@ export default function Dashboard() {
                         color="#fbbf24" // Màu vàng
                         bgColor="bg-gray-800/50"
                         borderColor="border-yellow-500/30" // Viền vàng nhạt
+                        alert={getLightAlert(
+                            sensorData.light[sensorData.light.length - 1]?.value
+                        )}
                     />
                 </div>
 

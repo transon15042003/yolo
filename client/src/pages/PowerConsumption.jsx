@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
+import SensorChart from "../components/charts/LineChart";
 import TimeRangeSelector from "../components/ui/TimeRangeSelector";
+import PowerCard from "../features/powerConsumption/PowerCard";
 import {
     fetchPowerConsumption,
     fetchPowerConsumptionChange,
 } from "../services/powerService";
-import SensorChart from "../components/charts/LineChart";
 
 export default function PowerConsumption() {
     const [powerData, setPowerData] = useState({
@@ -58,44 +59,6 @@ export default function PowerConsumption() {
     if (loading)
         return <div className="p-6 text-gray-300">Đang tải dữ liệu...</div>;
 
-    const PowerCard = ({
-        title,
-        value,
-        changes,
-        unit,
-        color,
-        bgColor,
-        borderColor,
-    }) => {
-        const formatChange = (change) => {
-            const sign = change >= 0 ? "+" : "";
-            return `${sign}${change.toFixed(1)}%`;
-        };
-
-        const getChangeColor = (change) =>
-            change >= 0 ? "text-red-400" : "text-green-400";
-
-        return (
-            <div className={`p-4 rounded-lg ${bgColor} border ${borderColor}`}>
-                <h3 className="text-lg font-semibold text-gray-100">{title}</h3>
-                <p className="text-2xl font-bold" style={{ color }}>
-                    {value !== undefined ? value.toFixed(2) : "0.00"} {unit}
-                </p>
-                <div className="mt-2 text-sm">
-                    <p className={getChangeColor(changes.hourChange)}>
-                        So với giờ trước: {formatChange(changes.hourChange)}
-                    </p>
-                    <p className={getChangeColor(changes.dayChange)}>
-                        So với ngày trước: {formatChange(changes.dayChange)}
-                    </p>
-                    <p className={getChangeColor(changes.monthChange)}>
-                        So với tháng trước: {formatChange(changes.monthChange)}
-                    </p>
-                </div>
-            </div>
-        );
-    };
-
     return (
         <div className="p-6 bg-gray-900 min-h-screen text-gray-100">
             <div className="max-w-7xl mx-auto">
@@ -118,6 +81,7 @@ export default function PowerConsumption() {
                         color="#3b82f6"
                         bgColor="bg-gray-800/50"
                         borderColor="border-blue-500/30"
+                        timeRange={timeRange}
                     />
                     <PowerCard
                         title="Quạt"
@@ -127,6 +91,7 @@ export default function PowerConsumption() {
                         color="#10b981"
                         bgColor="bg-gray-800/50"
                         borderColor="border-teal-500/30"
+                        timeRange={timeRange}
                     />
                     <PowerCard
                         title="Tổng tiêu thụ"
@@ -138,6 +103,7 @@ export default function PowerConsumption() {
                         color="#ef4444"
                         bgColor="bg-gray-800/50"
                         borderColor="border-red-500/30"
+                        timeRange={timeRange}
                     />
                 </div>
 

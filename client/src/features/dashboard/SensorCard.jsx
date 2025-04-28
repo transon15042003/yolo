@@ -16,10 +16,11 @@ export default function SensorCard({
     color,
     bgColor = "bg-gray-800/50",
     borderColor = "border-gray-700",
+    alert = { level: "", message: "", advice: "", color: "text-gray-100" },
 }) {
     return (
         <div
-            className={`p-4 rounded-xl border ${borderColor} ${bgColor} hover:shadow-lg transition-all h-full`}
+            className={`p-4 rounded-xl border ${borderColor} ${bgColor} hover:shadow-lg transition-all h-full grid grid-cols-2 grid-rows-2 gap-4`}
         >
             <div className="flex items-center">
                 <div className="mr-4 p-2 bg-gray-800 rounded-full">
@@ -42,6 +43,21 @@ export default function SensorCard({
                         </span>
                     </div>
                 </div>
+            </div>
+
+            <div className="flex items-center justify-center">
+                <span className={`text-xl font-bold ${alert.color}`}>
+                    {alert.level || "--"}
+                </span>
+            </div>
+
+            <div className="col-span-2 flex flex-col text-sm">
+                <span className={`${alert.color} mb-2`}>
+                    {alert.message || "Không có thông báo"}
+                </span>
+                <span className={`${alert.color}`}>
+                    {alert.advice || "Không có lời khuyên"}
+                </span>
             </div>
         </div>
     );
